@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Six Months of Jurros</title>
+<meta name="description" content="A live count of every day, hour, minute and second since March 9, 2026.">
+<!-- Tab icon: drop your image next to index.html as favicon.jpg -->
+<link rel="icon" href="favicon.jpg" type="image/jpeg">
+<link rel="apple-touch-icon" href="favicon.jpg">
+<meta name="theme-color" content="#FFF1F4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1B0E15" media="(prefers-color-scheme: dark)">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karla:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..900,0..100,0..1;1,9..144,300..900,0..100,0..1&display=swap">
+<style>
+/* ─────────────────────────────────────────────
+   EDIT ME: the moment it all started.
+   Midnight Pacific on March 9, 2026 (UTC-07:00,
+   since daylight saving began March 8, 2026).
+   Change it in the <script> at the bottom: START.
+   ───────────────────────────────────────────── */
+
+:root {
+  --ground:      #FFF1F4;
+  --ground-warm: #FFE4EC;
+  --ink:         #3B1F2B;
+  --ink-soft:    #966C7C;
+  --rose:        #E0356F;
+  --rose-deep:   #B01F55;
+  --ember:       #FF8A5B;
+  --line:        rgba(59, 31, 43, 0.14);
+  --curtain:     #FFE4EC;
+  --glow:        rgba(224, 53, 111, 0.16);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground:      #1B0E15;
+    --ground-warm: #2A1520;
+    --ink:         #FFE7EF;
+    --ink-soft:    #BE93A4;
+    --rose:        #FF6D9E;
+    --rose-deep:   #FFA8C4;
+    --ember:       #FFA277;
+    --line:        rgba(255, 231, 239, 0.16);
+    --curtain:     #2A1520;
+    --glow:        rgba(255, 109, 158, 0.22);
+  }
+}
+
+:root[data-theme="dark"] {
+  --ground:      #1B0E15;
+  --ground-warm: #2A1520;
+  --ink:         #FFE7EF;
+  --ink-soft:    #BE93A4;
+  --rose:        #FF6D9E;
+  --rose-deep:   #FFA8C4;
+  --ember:       #FFA277;
+  --line:        rgba(255, 231, 239, 0.16);
+  --curtain:     #2A1520;
+  --glow:        rgba(255, 109, 158, 0.22);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: "Karla", "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: -20% -20% auto -20%;
+  height: 70vh;
+  background: radial-gradient(60% 60% at 50% 30%, var(--glow), transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── the page ──────────────────────────────── */
+
+.stage {
+  position: relative;
+  z-index: 1;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2.75rem;
+  padding: 4rem 1.5rem 2rem;
+}
+
+.since {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: center;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.since-date {
+  margin: 0;
+  font-family: "Fraunces", Georgia, serif;
+  font-variation-settings: "SOFT" 60, "WONK" 1, "opsz" 40;
+  font-size: 1.35rem;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--ink);
+}
+
+/* ── the hero figure ───────────────────────── */
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.hero-number {
+  font-family: "Fraunces", Georgia, serif;
+  font-variation-settings: "SOFT" 80, "WONK" 1, "opsz" 144;
+  font-weight: 600;
+  font-size: clamp(5.5rem, 26vw, 11rem);
+  line-height: 0.88;
+  letter-spacing: -0.03em;
+  color: var(--rose);
+  font-variant-numeric: tabular-nums;
+}
+
+.hero-unit {
+  font-family: "Fraunces", Georgia, serif;
+  font-variation-settings: "SOFT" 60, "WONK" 1, "opsz" 24;
+  font-style: italic;
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: var(--ink);
+}
+
+/* ── the readout ───────────────────────────── */
+
+.readout {
+  width: min(100%, 27rem);
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--line);
+}
+
+.row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.95rem 0.1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.row-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.row-value {
+  font-family: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-size: clamp(1.05rem, 4.6vw, 1.35rem);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.row-seconds .row-value { color: var(--rose); }
+
+/* ── footer ────────────────────────────────── */
+
+.foot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  text-align: center;
+}
+
+.milestone {
+  margin: 0;
+  font-size: 0.86rem;
+  color: var(--ink-soft);
+}
+
+.milestone b {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.replay {
+  appearance: none;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink-soft);
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 0.6rem 1.1rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, transform 0.2s;
+}
+
+.replay:hover { color: var(--rose); border-color: var(--rose); transform: translateY(-1px); }
+.replay:focus-visible { outline: 2px solid var(--rose); outline-offset: 3px; }
+
+.copyright {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+}
+
+/* ── the opening curtain ───────────────────── */
+
+.curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  text-align: center;
+  background: var(--curtain);
+  cursor: pointer;
+  transition: opacity 0.85s ease, visibility 0.85s;
+}
+
+.curtain.gone {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.curtain-title {
+  margin: 0;
+  font-family: "Fraunces", Georgia, serif;
+  font-variation-settings: "SOFT" 90, "WONK" 1, "opsz" 144;
+  font-weight: 700;
+  font-size: clamp(2.6rem, 12vw, 5.5rem);
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+  color: var(--rose);
+  animation: rise 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.curtain-sub {
+  margin: 0;
+  font-family: "Fraunces", Georgia, serif;
+  font-variation-settings: "SOFT" 60, "WONK" 1, "opsz" 24;
+  font-style: italic;
+  font-size: clamp(1.1rem, 4.5vw, 1.5rem);
+  color: var(--ink);
+  animation: rise 1s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both;
+}
+
+.curtain-hint {
+  margin: 1.75rem 0 0;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  animation: fade 0.9s ease 1.9s both;
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(18px) scale(0.96); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+#fx {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .curtain-title, .curtain-sub, .curtain-hint { animation: none; opacity: 1; transform: none; }
+  .replay { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="fx" aria-hidden="true"></canvas>
+
+<main class="stage">
+
+  <div class="since">
+    <p class="eyebrow">Together since</p>
+    <p class="since-date">March 9, 2026</p>
+  </div>
+
+  <div class="hero">
+    <div class="hero-number" id="days">—</div>
+    <div class="hero-unit">days</div>
+  </div>
+
+  <div class="readout">
+    <div class="row">
+      <span class="row-label">Hours</span>
+      <span class="row-value" id="hours">—</span>
+    </div>
+    <div class="row">
+      <span class="row-label">Minutes</span>
+      <span class="row-value" id="minutes">—</span>
+    </div>
+    <div class="row row-seconds">
+      <span class="row-label">Seconds</span>
+      <span class="row-value" id="seconds">—</span>
+    </div>
+  </div>
+
+  <div class="foot">
+    <p class="milestone">Next up: <b id="milestone">—</b></p>
+    <button class="replay" id="replay" type="button">Do it again</button>
+    <p class="copyright">© jurros</p>
+  </div>
+
+</main>
+
+<div class="curtain" id="curtain" role="button" tabindex="0" aria-label="Continue to the counter">
+  <h1 class="curtain-title">Happy 6 Months</h1>
+  <p class="curtain-sub">to jurros</p>
+  <p class="curtain-hint">Tap anywhere</p>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ── The beginning. Midnight Pacific, March 9 2026. ──
+     (UTC-07:00 — daylight saving had already begun on March 8.)
+     If you'd rather anchor to literal PST, change -07:00 to -08:00. */
+  var START = new Date("2026-03-09T00:00:00-07:00").getTime();
+
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var fmt = function (n) { return n.toLocaleString("en-US"); };
+
+  /* ── counters ─────────────────────────────── */
+
+  var elDays = document.getElementById("days");
+  var elHours = document.getElementById("hours");
+  var elMinutes = document.getElementById("minutes");
+  var elSeconds = document.getElementById("seconds");
+  var elMilestone = document.getElementById("milestone");
+  var lastSecond = -1;
+
+  function tick() {
+    var totalSeconds = Math.floor((Date.now() - START) / 1000);
+    if (totalSeconds < 0) totalSeconds = 0;
+    if (totalSeconds !== lastSecond) {
+      lastSecond = totalSeconds;
+      elDays.textContent = fmt(Math.floor(totalSeconds / 86400));
+      elHours.textContent = fmt(Math.floor(totalSeconds / 3600));
+      elMinutes.textContent = fmt(Math.floor(totalSeconds / 60));
+      elSeconds.textContent = fmt(totalSeconds);
+    }
+    requestAnimationFrame(tick);
+  }
+  tick();
+
+  /* ── next round-number day, and the date it lands on ── */
+
+  (function milestone() {
+    var day = Math.floor((Date.now() - START) / 86400000);
+    var step = day < 100 ? 25 : day < 500 ? 100 : 250;
+    var next = (Math.floor(day / step) + 1) * step;
+    var when = new Date(START + next * 86400000);
+    elMilestone.textContent = "day " + fmt(next) + " on " +
+      when.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  })();
+
+  /* ── hearts and confetti ──────────────────── */
+
+  var canvas = document.getElementById("fx");
+  var ctx = canvas.getContext("2d");
+  var particles = [];
+  var running = false;
+  var W = 0, H = 0;
+
+  function resize() {
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    canvas.style.width = W + "px";
+    canvas.style.height = H + "px";
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  resize();
+  window.addEventListener("resize", resize);
+
+  var PALETTE = ["#E0356F", "#FF6D9E", "#FF8A5B", "#B01F55", "#FFC2D6", "#F2A0BE"];
+
+  function heartPath(s) {
+    ctx.beginPath();
+    ctx.moveTo(0, s * 0.38);
+    ctx.bezierCurveTo(-s * 1.15, -s * 0.42, -s * 0.42, -s * 1.12, 0, -s * 0.42);
+    ctx.bezierCurveTo(s * 0.42, -s * 1.12, s * 1.15, -s * 0.42, 0, s * 0.38);
+    ctx.closePath();
+  }
+
+  function burst(x, y, count, power) {
+    for (var i = 0; i < count; i++) {
+      var angle = Math.random() * Math.PI * 2;
+      var speed = (0.35 + Math.random() * 0.65) * power;
+      particles.push({
+        x: x, y: y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - power * 0.35,
+        size: 5 + Math.random() * 9,
+        rot: Math.random() * Math.PI * 2,
+        spin: (Math.random() - 0.5) * 0.22,
+        life: 1,
+        decay: 0.006 + Math.random() * 0.008,
+        color: PALETTE[(Math.random() * PALETTE.length) | 0],
+        heart: Math.random() < 0.6
+      });
+    }
+    if (!running) { running = true; requestAnimationFrame(frame); }
+  }
+
+  function frame() {
+    ctx.clearRect(0, 0, W, H);
+    for (var i = particles.length - 1; i >= 0; i--) {
+      var p = particles[i];
+      p.vy += 0.16;
+      p.vx *= 0.992;
+      p.vy *= 0.992;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rot += p.spin;
+      p.life -= p.decay;
+      if (p.life <= 0 || p.y > H + 80) { particles.splice(i, 1); continue; }
+
+      ctx.save();
+      ctx.globalAlpha = Math.min(1, p.life * 1.5);
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      if (p.heart) {
+        heartPath(p.size);
+        ctx.fill();
+      } else {
+        ctx.fillRect(-p.size * 0.35, -p.size * 0.55, p.size * 0.7, p.size * 1.1);
+      }
+      ctx.restore();
+    }
+    if (particles.length) {
+      requestAnimationFrame(frame);
+    } else {
+      running = false;
+      ctx.clearRect(0, 0, W, H);
+    }
+  }
+
+  var timers = [];
+  function celebrate() {
+    if (reduced) return;
+    timers.forEach(clearTimeout);
+    timers = [];
+    burst(W / 2, H * 0.44, 70, 13);
+    for (var i = 0; i < 7; i++) {
+      (function (i) {
+        timers.push(setTimeout(function () {
+          burst(W * (0.12 + Math.random() * 0.76), H * (0.16 + Math.random() * 0.42), 34, 10);
+        }, 320 + i * 260));
+      })(i);
+    }
+  }
+
+  /* ── the opening ──────────────────────────── */
+
+  var curtain = document.getElementById("curtain");
+  var dismissed = false;
+
+  function dismiss() {
+    if (dismissed) return;
+    dismissed = true;
+    curtain.classList.add("gone");
+  }
+
+  curtain.addEventListener("click", dismiss);
+  curtain.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); dismiss(); }
+  });
+  setTimeout(dismiss, reduced ? 2200 : 4600);
+  setTimeout(celebrate, reduced ? 0 : 420);
+
+  document.getElementById("replay").addEventListener("click", celebrate);
+})();
+</script>
+
+</body>
+</html>
