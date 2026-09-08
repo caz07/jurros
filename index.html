@@ -311,6 +311,30 @@ body::before {
   pointer-events: none;
 }
 
+/* ── the duck ──────────────────────────────── */
+
+#duck {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 76px;
+  height: 76px;
+  z-index: 6;
+  pointer-events: none;
+  user-select: none;
+  will-change: transform;
+  transform: translate3d(-200px, -200px, 0);
+  filter: drop-shadow(0 7px 9px rgba(59, 31, 43, 0.26));
+  opacity: 0;
+  transition: opacity 0.7s ease;
+}
+
+#duck.here { opacity: 1; }
+
+@media (max-width: 560px) {
+  #duck { width: 56px; height: 56px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .curtain-title, .curtain-sub, .curtain-hint { animation: none; opacity: 1; transform: none; }
   .replay { transition: none; }
@@ -320,6 +344,7 @@ body::before {
 <body>
 
 <canvas id="fx" aria-hidden="true"></canvas>
+<img id="duck" src="psyduck.png" alt="" aria-hidden="true" draggable="false">
 
 <main class="stage">
 
@@ -527,6 +552,125 @@ body::before {
   setTimeout(celebrate, reduced ? 0 : 420);
 
   document.getElementById("replay").addEventListener("click", celebrate);
+})();
+</script>
+
+<script>
+/* ── the duck ──────────────────────────────────────────────
+   Wanders on his own. Click anywhere and he waddles over.
+   One static sprite, so the walk is faked with a bob, a
+   side-to-side lean and a little squash on each step.
+   ────────────────────────────────────────────────────────── */
+(function () {
+  "use strict";
+
+  var duck = document.getElementById("duck");
+  if (!duck) return;
+  duck.addEventListener("error", function () { duck.remove(); });
+
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  var WANDER_SPEED = 58;   // px/sec, ambling
+  var CHASE_SPEED  = 168;  // px/sec, you clicked
+  var PAD = 10;
+
+  var W = window.innerWidth, H = window.innerHeight;
+  var x = 0, y = 0, tx = 0, ty = 0;
+  var facing = 1, phase = 0, hop = 0;
+  var chasing = false, started = false, restUntil = 0, last = 0;
+
+  function size() { return duck.offsetWidth || 76; }
+  function clampX(v) { return Math.max(PAD, Math.min(W - size() - PAD, v)); }
+  function clampY(v) { return Math.max(PAD, Math.min(H - size() - PAD, v)); }
+
+  function wander() {
+    tx = clampX(PAD + Math.random() * (W - size() - PAD * 2));
+    ty = clampY(H * (0.42 + Math.random() * 0.5) - size() / 2);
+  }
+
+  function goTo(px, py, fast) {
+    tx = clampX(px - size() / 2);
+    ty = clampY(py - size() / 2);
+    chasing = !!fast;
+    restUntil = 0;
+  }
+
+  function draw(t) {
+    var bob = 0, lean = 0, sx = 1, sy = 1;
+    if (!reduced) {
+      bob = -Math.abs(Math.sin(phase)) * 6;
+      lean = Math.sin(phase * 0.5) * 7;
+      var squash = Math.abs(Math.sin(phase)) * 0.06;
+      sy = 1 - squash;
+      sx = 1 + squash * 0.8;
+      if (hop > 0) bob += -Math.sin((1 - hop / 0.45) * Math.PI) * 15;
+      if (phase === 0) bob += Math.sin(t * 0.0018) * 1.6; // idle breathing
+    }
+    duck.style.transform =
+      "translate3d(" + x.toFixed(2) + "px," + (y + bob).toFixed(2) + "px,0)" +
+      " rotate(" + lean.toFixed(2) + "deg)" +
+      " scale(" + (sx * facing).toFixed(3) + "," + sy.toFixed(3) + ")";
+  }
+
+  function loop(t) {
+    var dt = Math.min((t - last) / 1000, 0.05);
+    last = t;
+
+    var dx = tx - x, dy = ty - y;
+    var dist = Math.hypot(dx, dy);
+
+    if (dist > 1.5) {
+      var speed = chasing ? CHASE_SPEED : WANDER_SPEED;
+      var step = Math.min(speed * dt, dist);
+      x += (dx / dist) * step;
+      y += (dy / dist) * step;
+      if (dx < -0.5) facing = 1;
+      else if (dx > 0.5) facing = -1;
+      phase += dt * Math.PI * 2 * (chasing ? 3.4 : 2.3);
+    } else {
+      if (chasing) { chasing = false; hop = 0.45; }
+      phase = 0;
+      if (!reduced && !restUntil) restUntil = t + 950 + Math.random() * 350;
+      if (!reduced && restUntil && t > restUntil) { restUntil = 0; wander(); }
+    }
+
+    if (hop > 0) hop = Math.max(0, hop - dt);
+    draw(t);
+    requestAnimationFrame(loop);
+  }
+
+  function begin() {
+    if (started) return;
+    started = true;
+    W = window.innerWidth; H = window.innerHeight;
+    x = clampX(W * 0.5 - size() / 2);
+    y = clampY(H - size() - 48);
+    tx = x; ty = y;
+    duck.classList.add("here");
+    last = performance.now();
+    requestAnimationFrame(loop);
+  }
+
+  window.addEventListener("resize", function () {
+    W = window.innerWidth; H = window.innerHeight;
+    x = clampX(x); y = clampY(y); tx = clampX(tx); ty = clampY(ty);
+  });
+
+  document.addEventListener("pointerdown", function (e) {
+    if (!started) return;
+    goTo(e.clientX, e.clientY, true);
+  });
+
+  /* he shows up once the curtain lifts */
+  var curtain = document.getElementById("curtain");
+  if (!curtain || curtain.classList.contains("gone")) {
+    begin();
+  } else {
+    var mo = new MutationObserver(function () {
+      if (curtain.classList.contains("gone")) { mo.disconnect(); setTimeout(begin, 550); }
+    });
+    mo.observe(curtain, { attributes: true, attributeFilter: ["class"] });
+  }
 })();
 </script>
 
